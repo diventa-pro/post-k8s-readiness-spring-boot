@@ -1,0 +1,34 @@
+version: "3.9"
+services:
+
+  boot:
+    build: .
+    ports:
+    - "8080:8080"
+    environment:
+      MANAGEMENT_ENDPOINT_HEALTH_GROUP_READINESS_INCLUDE: readinessState,db,redis,diskSpace
+      SPRING_DATASOURCE_USERNAME: pgsql-usr
+      SPRING_DATASOURCE_PASSWORD: pgsql-pwd
+      DB_HOST: pgsql
+      DB_PORT: 5432
+      DB_NAME: actuator
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_DATASOURCE_HIKARI_CONNECTIONTIMEOUT: 5000
+      SPRING_DATASOURCE_HIKARI_IDLETIMEOUT: 5000
+      SPRING_DATASOURCE_HIKARI_MAXLIFETIME: 1800000
+    depends_on:
+      - pgsql
+      - redis
+
+  pgsql:
+    image: "postgres:13.1-alpine"
+    environment:
+      POSTGRES_USER: pgsql-usr
+      POSTGRES_PASSWORD: pgsql-pwd
+      POSTGRES_DB: actuator
+
+  redis:
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
