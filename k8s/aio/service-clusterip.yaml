@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: boot-backend-clusterip
+spec:
+  type: ClusterIP
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 90
+  ports:
+    - port: 8008
+      name: http
+      targetPort: http
+  selector:
+    app: boot

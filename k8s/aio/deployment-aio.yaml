@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boot-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: boot
+  template:
+    metadata:
+      labels:
+        app: boot
+    spec:
+      containers:
+        - name: redis
+          image: redis:6.0.9-alpine
+          ports:
+            - containerPort: 6379
+          env:
+            - name: ALLOW_EMPTY_PASSWORD
+              value: "yes"
+        - name: pgsql
+          image: postgres:13.1-alpine
+          env:
+            - name: POSTGRES_USER
+              value: pgsql-usr
+            - name: POSTGRES_PASSWORD
+              value: pgsql-pwd
+            - name: POSTGRES_DB
+              value: actuator
+          ports:
+            - containerPort: 5432
+        - name: boot
+          image: ghcr.io/diventa-pro/post-k8s-readiness-spring-boot:v0.0.3
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: MANAGEMENT_ENDPOINT_HEALTH_GROUP_READINESS_INCLUDE
+              value: readinessState,db,redis,diskSpace
+            - name: SPRING_DATASOURCE_USERNAME
+              value: pgsql-usr
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: pgsql-pwd
+            - name: DB_HOST
+              value: pgsql
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: actuator
+            - name: SPRING_REDIS_HOST
+              value: redis
+            - name: SPRING_REDIS_PORT
+              value: "6379"
+            - name: SPRING_DATASOURCE_HIKARI_CONNECTIONTIMEOUT
+              value: "5000"
+            - name: SPRING_DATASOURCE_HIKARI_IDLETIMEOUT
+              value: "5000"
+            - name: SPRING_DATASOURCE_HIKARI_MAXLIFETIME
+              value: "1800000"
