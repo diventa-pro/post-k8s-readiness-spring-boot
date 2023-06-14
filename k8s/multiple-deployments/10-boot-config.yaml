@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: boot-config
+data:
+  "giovanni.txt": |
+    "CIAO"
+  "application.yaml": |
+    spring:
+      datasource:
+        hikari:
+          connection-timeout: 5000
+          idle-timeout: 5000
+          max-lifetime: 1800000

@@ -44,13 +44,13 @@ spec:
             - name: SPRING_DATASOURCE_PASSWORD
               value: pgsql-pwd
             - name: DB_HOST
-              value: pgsql
+              value: localhost
             - name: DB_PORT
               value: "5432"
             - name: DB_NAME
               value: actuator
             - name: SPRING_REDIS_HOST
-              value: redis
+              value: localhost
             - name: SPRING_REDIS_PORT
               value: "6379"
             - name: SPRING_DATASOURCE_HIKARI_CONNECTIONTIMEOUT

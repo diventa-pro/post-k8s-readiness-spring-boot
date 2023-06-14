@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: oneshot-job
+spec:
+  parallelism: 1
+  template:
+    spec:
+      restartPolicy: OnFailure
+      #activeDeadlineSeconds: 120
+      containers:
+        - name: oneshot-job-container
+          image: alpine:3.18.0
+          command:
+            - sh
+            - -c
+            - echo "CIAO"

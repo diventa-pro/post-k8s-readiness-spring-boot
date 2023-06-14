@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: backend-ingress
+  labels:
+    name: backend-ingress
+spec:
+  rules:
+    - http:
+        paths:
+        - pathType: Prefix
+          path: /actuator
+          backend:
+            service:
+              name: boot-svc
+              port: 
+                name: boot

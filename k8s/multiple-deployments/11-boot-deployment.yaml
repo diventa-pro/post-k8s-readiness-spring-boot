@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: boot
+spec:
+  selector:
+    matchLabels:
+      app: boot
+  template:
+    metadata:
+      labels:
+        app: boot
+    spec:
+      volumes:
+        - name: application-config-volume
+          configMap:
+            name: boot-config
+      containers:
+      - name: boot
+        image: ghcr.io/diventa-pro/post-k8s-readiness-spring-boot:v0.0.3
+        volumeMounts:
+          - mountPath: /config
+            name: application-config-volume
+        startupProbe:
+          initialDelaySeconds: 120 # 2min
+          periodSeconds: 60 # 1 min
+          failureThreshold: 5
+          timeoutSeconds: 5
+          tcpSocket:
+            port: 8080
+        livenessProbe:
+          periodSeconds: 15 # 15
+          failureThreshold: 2
+          timeoutSeconds: 5
+          tcpSocket:
+            port: 8080
+        readinessProbe:
+          periodSeconds: 15 #15 * 5
+          failureThreshold: 2
+          successThreshold: 5
+          timeoutSeconds: 5
+          httpGet:
+            port: 8080
+            path: /actuator/health
+        env:
+          - name: SPRING_DATASOURCE_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: psql-config
+                key: POSTGRES_USER
+          - name: SPRING_DATASOURCE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: psql-secret
+                key: POSTGRES_PASSWORD
+          - name: POSTGRES_DB
+            valueFrom:
+              configMapKeyRef:
+                name: psql-config
+                key: POSTGRES_DB
+          - name: DB_HOST
+            value: psql-svc
+          - name: DB_PORT
+            value: "5432"
+          - name: DB_NAME
+            value: actuator
+          - name: SPRING_REDIS_HOST
+            value: redis-svc
+          - name: SPRING_REDIS_PORT
+            value: "6379"
+        ports:
+        - containerPort: 8080
+--- 
+apiVersion: v1
+kind: Service
+metadata:
+  name: boot-svc
+spec:
+  type: ClusterIP
+  selector:
+    app: boot
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: boot

@@ -1,0 +1,19 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cron-job
+spec:
+  schedule: "0/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          #activeDeadlineSeconds: 120
+          containers:
+            - name: oneshot-job-container
+              image: alpine:3.18.0
+              command:
+                - sh
+                - -c
+                - echo "CIAO"
